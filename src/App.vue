@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import SearchView from "./views/SearchView.vue";
+    import { RouterView } from 'vue-router';
 </script>
 
 <template>
-    <SearchView />
+    <RouterView />
 </template>
 
 <style scoped>

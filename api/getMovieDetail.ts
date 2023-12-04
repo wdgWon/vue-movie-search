@@ -1,7 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
 
 const { API_GET_MOVIES_URL, API_GET_MOVIES_KEY } = process.env;
 

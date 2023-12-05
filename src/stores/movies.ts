@@ -2,16 +2,26 @@ import { ref, reactive, computed, watch, readonly } from 'vue';
 import { defineStore } from 'pinia';
 import type { Movies, MovieDetail } from './interface';
 
-interface MoviesWithLoading extends Movies {
+interface MoviesExtend extends Movies {
+    keyword: string;
+    page: number;
     isLoading: boolean;
+    isMoreLoading: boolean
 }
 
 export const useMovieStore = defineStore('movie', () => {
-    const movies = reactive({ isLoading: false } as MoviesWithLoading);
+    const movies = reactive({ keyword: '', isLoading: false, isMoreLoading: false, page: 0 } as MoviesExtend);
 
     const fetchMovies = async (search = '', page = 1) => {
-        try {
+        if (movies.page === page && movies.keyword === search || search === '') {
+            return null;
+        }
+        if (movies.keyword !== search) {
             movies.isLoading = true;
+        } else {
+            movies.isMoreLoading = true;
+        }
+        try {
             const res = await fetch('/api/getMovies', {
                 method: 'POST',
                 body: JSON.stringify({ search, page }),
@@ -20,24 +30,46 @@ export const useMovieStore = defineStore('movie', () => {
 
             movies.Response = Response;
 
-            if (Response === 'True') {
-                movies.Search = Search.map(movie => ({...movie, Poster: movie.Poster.replace(/SX300.jpg$/, "SX200.jpg")}));
-                movies.totalResults = totalResults;
-            } else {
-                alert('검색 결과가 없습니다!');
+            if (Response === 'False' && search === movies.keyword) return null;
+            if (Response === 'False') {
+                alert("검색 결과가 없습니다!");
+                return null;
             }
+
+            const newSearch = Search.map((movie) => ({
+                ...movie,
+                Poster: movie.Poster.replace(/SX300.jpg$/, 'SX200.jpg'),
+            }));
+
+            if (movies.keyword === search) {
+                movies.Search = [...movies.Search, ...newSearch];
+            } else {
+                movies.keyword = search;
+                movies.Search = newSearch;
+            }
+
+            movies.totalResults = totalResults;
+            movies.page = page;
         } catch (error) {
             console.error(error);
         } finally {
             movies.isLoading = false;
+            movies.isMoreLoading = false;
         }
     };
 
     const isMovies = computed(() => {
-        return movies.Response === 'True';
+        return movies.Search?.length > 0;
     });
 
-    return { movies, isMovies, fetchMovies };
+    const loadMore = () => {
+        const nextPage = movies.page + 1;
+        const keyword = movies.keyword;
+
+        fetchMovies(keyword, nextPage);
+    }
+
+    return { movies, isMovies, fetchMovies, loadMore };
 });
 
 export const useMovieDetailStore = defineStore('movie-detail', () => {
@@ -57,7 +89,10 @@ export const useMovieDetailStore = defineStore('movie-detail', () => {
             const data: MovieDetail = await res.json();
 
             if (data.Response === 'True') {
-                movieDetail.push({...data, Poster: data.Poster.replace(/SX300.jpg$/, "SX400.jpg")});
+                movieDetail.push({
+                    ...data,
+                    Poster: data.Poster.replace(/SX300.jpg$/, 'SX400.jpg'),
+                });
             } else {
                 alert('검색 결과가 없습니다!');
             }

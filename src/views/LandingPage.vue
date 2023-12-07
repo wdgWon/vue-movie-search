@@ -15,8 +15,8 @@ const handleOnSubmit = () => {
 };
 
 watch(
-    () => movieStore.movies.isLoading,
-    (stillLoading) => stillLoading === false && router.push('/search')
+    [() => movieStore.movies.isLoading, open],
+    ([stillLoading]) => stillLoading === false && router.push('/search')
 );
 </script>
 <template>

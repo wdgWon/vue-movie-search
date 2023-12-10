@@ -3,6 +3,7 @@ import { ref, watch, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useMovieStore, useMovieDetailStore } from '@/stores/movies';
 import EllipsisLoading from '@/assets/EllipsisLoading.svg';
+import MovieSearchLogo from '@/assets/MovieSearchLogo.svg';
 
 const movieStore = useMovieStore();
 const detailStore = useMovieDetailStore();
@@ -53,13 +54,25 @@ onBeforeUnmount(() => {
                     v-for="item in movieStore.movies.Search"
                     :key="item.imdbID"
                     class="inline-block grow min-w-fit shrink-0"
-                    @click="handleOnClick(item.imdbID)"
                 >
-                    <img
-                        class="m-auto cursor-pointer"
-                        :src="item.Poster"
-                        :alt="item.Title"
-                    />
+                    <div
+                        class="relative m-auto cursor-pointer w-[220px] aspect-[2/3] object-cover rounded-lg shadow-lgshadow-black hover:shadow-2xl hover:shadow-black transition-shadow overflow-hidden"
+                        @click="handleOnClick(item.imdbID)"
+                    >
+                        <img
+                            class="w-full h-full"
+                            :src="item.Poster === 'N/A' ? MovieSearchLogo : item.Poster"
+                            :alt="item.Title"
+                        />
+                        <div
+                            class="absolute px-2 bottom-0 left-0 right-0 flex justify-center items-center aspect-[4/1] bg-gradient-to-t from-black to-transparent"
+                        >
+                            <span
+                                class="inline-block text-white text-ellipsis whitespace-nowrap overflow-hidden"
+                                >{{ item.Title }}</span
+                            >
+                        </div>
+                    </div>
                 </li>
             </ul>
             <div

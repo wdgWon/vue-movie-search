@@ -22,9 +22,10 @@ watch(
 <template>
     <section
         v-if="detailStore.isMovieDetail(movieId as string)"
-        class="w-full h-full flex justify-center items-center gap-8"
+        class="w-full h-full flex justify-center items-center gap-8 p-4"
     >
         <img
+            class="rounded-lg shadow-lg shadow-black"
             :src="movie.Poster"
             :alt="movie.Title"
         />
